@@ -1,6 +1,8 @@
 Saiku Analytics on OpenShift
 ======================
 
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/latinojoel/saiku-openshift-quickstart/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
 This git repository helps you get up and running quickly a Saiku Analytics installation
 on OpenShift in a couple minutes with demo data (foodmart database). The backend database is MySQL and the database name is the 
 same as your application name (using getenv('OPENSHIFT_APP_NAME')).  You can name
