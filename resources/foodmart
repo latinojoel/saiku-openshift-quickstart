@@ -1,0 +1,19 @@
+type=OLAP
+name=foodmart
+driver=mondrian.olap4j.MondrianOlap4jDriver
+location=jdbc:mondrian:Jdbc=jdbc:mysql://${env:OPENSHIFT_MYSQL_DB_HOST}:${env:OPENSHIFT_MYSQL_DB_PORT}/${env:OPENSHIFT_APP_NAME};Catalog=res:foodmart/FoodMart.xml;
+username=${env:OPENSHIFT_MYSQL_DB_USERNAME}
+password=${env:OPENSHIFT_MYSQL_DB_PASSWORD}
+
+# some security configuration for roles, first enable it
+# security.enabled=true
+
+# there are 3 different types of security:
+# "one2one" (try and map spring user roles to mondrian roles), 
+# "lookup" (define the mapping of spring and mondrian roles manually) 
+# "passthrough" (will pass username + password of logged in user to connection, e.g. jdbc user + password)
+
+# security.type=one2one
+
+# security.type=lookup
+# security.mapping=springRole=mondrianRole1;springRole2=mondrianRole2

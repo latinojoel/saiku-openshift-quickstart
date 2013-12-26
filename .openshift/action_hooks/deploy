@@ -1,0 +1,43 @@
+#!/bin/bash
+# This deploy hook gets executed after dependencies are resolved and the
+# build hook has been run but before the application has been started back
+# up again.  This script gets executed directly, so it could be python, php,
+# ruby, etc.
+
+set -e
+
+if [ -z "$OPENSHIFT_MYSQL_DB_HOST" ]
+then
+    echo 1>&2
+    echo "Could not find mysql database.  Please run:" 1>&2
+    echo "rhc cartridge add -a $OPENSHIFT_APP_NAME -c mysql-5.1" 1>&2
+    echo "then make a sample commit (add whitespace somewhere) and re-push" 1>&2
+    echo 1>&2
+fi
+
+if [ -z "$OPENSHIFT_MYSQL_DB_HOST" ]
+then
+    exit 5
+fi
+
+
+# Confirm database exists, if not create it
+if ! /usr/bin/mysql -u "$OPENSHIFT_MYSQL_DB_USERNAME" --password="$OPENSHIFT_MYSQL_DB_PASSWORD" -h "$OPENSHIFT_MYSQL_DB_HOST" -e "select * from account;" "$OPENSHIFT_APP_NAME" > /dev/null 2>&1
+then
+    echo
+    echo "Database schema not found, importing 'foodmart.sql' schema."
+    echo
+    echo "Removing $OPENSHIFT_TMP_DIR/foodmart/ folder."
+    rm -R -f $OPENSHIFT_TMP_DIR/foodmart/
+    echo "$OPENSHIFT_TMP_DIR/foodmart/ folder removed."
+    echo "Creating $OPENSHIFT_TMP_DIR/foodmart/ folder."
+    mkdir $OPENSHIFT_TMP_DIR/foodmart/
+    echo "Uncompress foodmart dump."
+    tar -zxvf $OPENSHIFT_REPO_DIR/resources/foodmart.tgz -C $OPENSHIFT_TMP_DIR/foodmart/
+    echo "Importing foodmart.sql file."
+    /usr/bin/mysql -u "$OPENSHIFT_MYSQL_DB_USERNAME" --password="$OPENSHIFT_MYSQL_DB_PASSWORD" -h "$OPENSHIFT_MYSQL_DB_HOST" "$OPENSHIFT_APP_NAME" < "$OPENSHIFT_TMP_DIR/foodmart/foodmart.sql"
+    echo
+    echo "done."
+else
+    echo "Database found, skipping import."
+fi
